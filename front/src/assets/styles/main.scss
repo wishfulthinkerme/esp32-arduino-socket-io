@@ -1,0 +1,17 @@
+@import "normalize-scss/sass/normalize";
+@include normalize();
+@import 'bootstrap/scss/bootstrap-grid';
+html,
+body {
+  font-size: 14px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 400;
+  background: white;
+  color: #626262;
+  height: 100%;
+  width: 100%;
+}
+#root {
+  height: 100%;
+  width: 100%;
+}

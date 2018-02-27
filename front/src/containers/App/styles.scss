@@ -1,0 +1,18 @@
+.app {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  &__button {
+    cursor: pointer;
+    display: block;
+    padding: 15px;
+    margin: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+  }
+  &__count {
+    &__label {}
+    &__value {}
+  }
+}
