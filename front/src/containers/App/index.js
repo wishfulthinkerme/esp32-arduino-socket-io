@@ -80,7 +80,7 @@ class App extends Component {
             </Card>
           </article>
           <article className="row pt-sm">
-            <Card header="Elements" className="col-sm-3">
+            <Card header="Elements" className="col-sm-4">
               <ButtonGroup onSend={this.send} />
             </Card>
           </article>
