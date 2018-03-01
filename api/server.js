@@ -17,7 +17,7 @@ export const io = require('socket.io')(http);
 let count = 0;
 
 const updateCount = (c) => {
-  io.sockets.emit('currencltCount', c)
+  io.sockets.emit('currentCount', c)
 }
 
 io.on('connection', function (socket) {
