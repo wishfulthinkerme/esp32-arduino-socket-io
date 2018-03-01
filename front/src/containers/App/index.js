@@ -69,13 +69,13 @@ class App extends Component {
         <NavHeader />
         <section className="app-content">
           <article className="row">
-            <Card header="Values" className="col-sm-3">
+            <Card header="Values" className="col-sm-4">
               <ValuesTable values={values} />
             </Card>
-            <Card header="History" className="col-sm-3">
+            <Card header="History" className="col-sm-4">
               <HistoryTable history={history} />
             </Card>
-            <Card header="Current count" className="col-sm-3">
+            <Card header="Current count" className="col-sm-4">
               <div className="app-counter">{this.state.currentCount}</div>
             </Card>
           </article>

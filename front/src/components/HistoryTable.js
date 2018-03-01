@@ -2,7 +2,7 @@ import React from 'react';
 import './table.css';
 
 export default ({ history }) => (
-  <table className="app-table table table-striped table-responsive">
+  <table className="app-table table table-striped">
     <thead>
       <tr>
         <th scope="col">Key</th>

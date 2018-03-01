@@ -3,7 +3,7 @@ import map from 'lodash/map';
 import './table.css';
 
 export default ({ values }) => (
-  <table className="app-table table table-striped table-responsive">
+  <table className="app-table table table-striped">
     <thead>
       <tr>
         <th scope="col">Id</th>

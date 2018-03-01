@@ -1,9 +1,14 @@
 .card {
+  padding: 10px;
+  background-color: transparent !important;
+  border: 0 !important;
+  max-height: 350px;
+}
+.card__content {
   background-color: #fff;
-  margin-right: 25px;
   padding-top: 15px;
   padding-bottom: 15px;
-  max-height: 350px;
+  height: 100%;
 
   & > h3 {
     text-align: center;

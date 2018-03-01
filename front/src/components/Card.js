@@ -3,7 +3,9 @@ import './card.css';
 
 export default ({ header, children, className }) => (
   <div className={`${className} card`}>
-    <h3>{header}</h3>
-    {children}
+    <div className="card__content">
+      <h3>{header}</h3>
+      {children}
+    </div>
   </div>
 );
