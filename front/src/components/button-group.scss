@@ -1,0 +1,18 @@
+.button-group {
+  display: grid;
+  grid-template-columns: 200px 200px;
+  grid-gap: 10px;
+
+  &__btn {
+    background-color: orange;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+
+    &:hover {
+      background-color: darken($color: orange, $amount: 20)
+    }
+  }
+}

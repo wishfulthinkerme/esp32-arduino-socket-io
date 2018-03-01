@@ -2,12 +2,15 @@ import React, { Component } from 'react';
 import {
   withRouter
 } from 'react-router-dom';
-import { connect } from 'react-redux'
-import { bindActionCreators, compose } from 'redux';
+import { compose } from 'redux';
 import socketIo from 'socket.io-client';
 import split from 'lodash/split';
-import map from 'lodash/map';
 
+import NavHeader from '../../components/NavHeader';
+import ValuesTable from '../../components/ValuesTable';
+import HistoryTable from '../../components/HistoryTable';
+import ButtonGroup from '../../components/ButtonGroup';
+import Card from '../../components/Card';
 import './styles.css';
 
 class App extends Component {
@@ -62,54 +65,32 @@ class App extends Component {
   render() {
     const { history, values } = this.state;
     return (
-      <div className="app">
-        <h3>History</h3>
-        <table className="app__history">
-          {map(values, (data, key) => (
-            <tr key={`values-${key}`}>
-              <td>{data.id}</td>
-              <td>{data.val}</td>
-            </tr>
-          ))}
-        </table>
-        <div style={{ overflow: 'scroll', height: '300px' }}>
-          <table className="app__history">
-            {history.map((data, key) => (
-              <tr key={`${key}`}>
-                <td>{key}</td>
-                <td>{data}</td>
-              </tr>
-            ))}
-          </table>
-        </div>
-        <div>
-          <div className="app__button" onClick={this.send('toRadio', 'R01:LIG:01')}>R01:LIG:01</div>
-          <div className="app__button" onClick={this.send('toRadio', 'R01:LIG:00')}>R01:LIG:00</div>
-          <div className="app__button" onClick={this.send('toRadio', 'R02:STP:15')}>R02:STP:15</div>
-          <div className="app__button" onClick={this.send('toRadio', 'R03:STP:15')}>R03:STP:15</div>
-          <div className="app__button" onClick={this.send('toRadio', 'R04:STP:15')}>R04:STP:15</div>
-          <div className="app__button" onClick={this.send('toRadio', 'R05:STP:15')}>R05:STP:15</div>
-        </div>
-        <div className="app__count">
-          <div className="app__count__label">
-            Current count:
-          </div>
-          <div className="app__count__value">
-            {this.state.currentCount}
-          </div>
-        </div>
-      </div>
+      <main className="app">
+        <NavHeader />
+        <section className="app-content">
+          <article className="row">
+            <Card header="Values" className="col-sm-3">
+              <ValuesTable values={values} />
+            </Card>
+            <Card header="History" className="col-sm-3">
+              <HistoryTable history={history} />
+            </Card>
+            <Card header="Current count" className="col-sm-3">
+              <div className="app-counter">{this.state.currentCount}</div>
+            </Card>
+          </article>
+          <article className="row pt-sm">
+            <Card header="Elements" className="col-sm-3">
+              <ButtonGroup onSend={this.send} />
+            </Card>
+          </article>
+        </section>
+      </main>
+
     );
   }
 }
 
-const mapStateToProps = () => ({
-});
-
-const mapDispatchToProps = dispatch => bindActionCreators({
-}, dispatch);
-
 export default compose(
   withRouter,
-  connect(mapStateToProps, mapDispatchToProps),
 )(App);

@@ -27,6 +27,7 @@
     "morgan": "^1.8.2",
     "mysql": "^2.14.1",
     "mysql2": "^1.4.2",
+    "nodemon": "^1.17.1",
     "sequelize": "^4.7.5",
     "sequelize-auto-migrations": "^1.0.2",
     "sequelize-cli": "^3.2.0",

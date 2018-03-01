@@ -1,0 +1,28 @@
+.app-table {
+  width: 150px !important;
+  margin-left: auto;
+  margin-right: auto;
+  border-collapse: collapse;
+
+  thead > tr {
+    background-color: #43B575;
+
+    & > th {
+      padding: 15px;
+      color: #fff;
+    }
+  }
+
+  tr:not(:last-child) {
+    border-bottom: 1px solid #eceeef;
+  }
+
+  tbody tr:nth-child(even) {
+    // background-color: #dedede;
+  }
+
+  td {
+    text-align: center;
+    padding: 5px;
+  }
+}

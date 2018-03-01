@@ -1,0 +1,12 @@
+.app-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 60px;
+  background-color: #fff;
+
+  & > img {
+    height: 50px;
+    width: auto;
+  }
+}
