@@ -4,7 +4,7 @@
   grid-gap: 10px;
 
   &__btn {
-    background-color: orange;
+    background-color: #43B575;
     height: 60px;
     display: flex;
     justify-content: center;
@@ -12,7 +12,7 @@
     color: #fff;
 
     &:hover {
-      background-color: darken($color: orange, $amount: 20)
+      background-color: darken($color: #43B575, $amount: 20)
     }
   }
 }
