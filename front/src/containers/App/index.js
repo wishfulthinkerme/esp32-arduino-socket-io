@@ -13,6 +13,7 @@ import ButtonGroup from '../../components/ButtonGroup';
 import Card from '../../components/Card';
 import './styles.css';
 
+
 class App extends Component {
   socket;
   state = {
@@ -64,6 +65,7 @@ class App extends Component {
 
   render() {
     const { history, values } = this.state;
+
     return (
       <main className="app">
         <NavHeader />
@@ -80,7 +82,7 @@ class App extends Component {
             </Card>
           </article>
           <article className="row pt-sm">
-            <Card header="Elements" className="col-sm-4">
+            <Card header="Buttons" className="col-sm-4">
               <ButtonGroup onSend={this.send} />
             </Card>
           </article>
