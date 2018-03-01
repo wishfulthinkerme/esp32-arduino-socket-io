@@ -10,6 +10,7 @@
     justify-content: center;
     align-items: center;
     color: #fff;
+    cursor: pointer;
 
     &:hover {
       background-color: darken($color: #43B575, $amount: 20)
