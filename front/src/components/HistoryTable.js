@@ -10,7 +10,7 @@ export default ({ history }) => (
       </tr>
     </thead>
     <tbody>
-      {history.map((data, key) => (
+      {history.slice().reverse().map((data, key) => (
         <tr key={`${key}`}>
           <td>{key}</td>
           <td>{data}</td>
