@@ -4,3 +4,5 @@
 - Arduino Nano
 - ReactJS
 - NodeJS / SocketIO
+
+# Soon I will upload pictures how to connect everything
