@@ -5,7 +5,7 @@ import {
 import { compose } from 'redux';
 import socketIo from 'socket.io-client';
 import split from 'lodash/split';
-
+import filter from 'lodash/filter';
 import NavHeader from '../../components/NavHeader';
 import ValuesTable from '../../components/ValuesTable';
 import HistoryTable from '../../components/HistoryTable';
@@ -34,7 +34,18 @@ class App extends Component {
       const id = x[0];
       const type = x[1];
       const val = x[2];
-
+      if (type === 'CHANNEL') {
+        this.setState({
+          ...this.state,
+          values: {
+            ...this.state.values,
+            [id]: {
+              ...this.state.values[id],
+              channel: val,
+            }
+          }
+        });
+      }
       if (id === 'R04' && type === 'VAL' && val === 'TRUE') {
         this.send('toRadio', 'R01:LIG:01')();
       }
@@ -45,6 +56,7 @@ class App extends Component {
         values: {
           ...this.state.values,
           [id]: {
+            ...this.state.values[id],
             id, type, val
           }
         },
@@ -63,16 +75,20 @@ class App extends Component {
     console.log(key, data)
   }
 
-  render() {
-    const { history, values } = this.state;
+  sendBeat = (id, channel) => () => {
+    this.send('toRadio', `${id}:${channel}:BEAT:00000`)();
+  }
 
+  render() {
+    let { history, values } = this.state;
+    values = filter(values, h => h.channel);
     return (
       <main className="app">
         <NavHeader />
         <section className="app-content">
           <article className="row">
             <Card header="Values" className="col-sm-4">
-              <ValuesTable values={values} />
+              <ValuesTable values={values} onClick={this.sendBeat} />
             </Card>
             <Card header="History" className="col-sm-4">
               <HistoryTable history={history} />

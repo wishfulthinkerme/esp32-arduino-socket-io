@@ -9,15 +9,16 @@
 #define LED_YELLOW 35
 
 RF24 radio(5, 17); // CE , CSN
-const int packageSize = 15;
+const int packageSize = 32;
 const byte rxAddr[6] = "00002"; // Receive Satelite data
+// const byte txAddr[6] = "00001"; // Send time() to Satelites
 const byte txAddr[6] = "00001"; // Send time() to Satelites
 
 // WIFI connection
-char *ssid = "Wishfulthinker";
-char *password = "asd12345";
+char *ssid = "I Am Under Your Bed";
+char *password = "iamfriendwiththemonster";
 char path[] = "/";
-char host[] = "172.20.10.5";
+char host[] = "192.168.0.101";
 int port = 5002;
 
 // Socket connection
@@ -109,13 +110,22 @@ void receiveRadio()
   }
 }
 
-void transmitData(String actionType, String actionDesc)
+void transmitData(String actionType, String channel)
 {
   radio.stopListening();
   char package[packageSize] = {0};
+  byte deviceChannel[6] = "";
+  for (int i = 0; i < 5; i++)
+  {
+    deviceChannel[i] = (byte)channel[i];
+  }
+  Serial.println(String((char *)deviceChannel));
   String(actionType).toCharArray(package, packageSize);
+  ;
+  radio.openWritingPipe(deviceChannel);
+  delay(10);
   bool sent = radio.write(&package, sizeof(package));
-  Serial.print(String(actionDesc + ": "));
+
   Serial.println(package);
   digitalWrite(LED_YELLOW, HIGH);
   delay(10);
@@ -137,7 +147,6 @@ void loop()
     {
       delay(1000);
     }
-    // client.connect(host, port);
   }
   else
   {
@@ -146,10 +155,13 @@ void loop()
   if (client.monitor())
   {
     String data = String(Rcontent);
-    transmitData(data, data);
+    int commaIndex = data.indexOf(':');
+    int secondCommaIndex = data.indexOf(':', commaIndex + 1);
+    String deviceId = data.substring(0, commaIndex);
+    String deviceChannel = data.substring(commaIndex + 1, secondCommaIndex);
+    transmitData(data, deviceChannel);
 
     delay(30);
   }
-  // transmitData("R01:XXX:YYYYYY", "Send R01");
   receiveRadio();
 }
