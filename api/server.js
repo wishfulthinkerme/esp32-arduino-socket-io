@@ -4,7 +4,14 @@ import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import socket from 'socket.io';
+import split from 'lodash/split';
+import lowdb from 'lowdb';
+import FileSync from 'lowdb/adapters/FileSync';
 
+const adapter = new FileSync('db.json');
+const db = lowdb(adapter);
+db.defaults({ devices: [] })
+  .write()
 
 global.__basedir = __dirname;
 
@@ -20,20 +27,56 @@ const updateCount = (c) => {
   io.sockets.emit('currentCount', c)
 }
 
+const emitDevices = () => {
+
+  const devices = db.get('devices')
+    .value();
+  console.log(devices)
+  io.sockets.emit('devices', devices);
+}
+
 io.on('connection', function (socket) {
   count++;
   updateCount(count);
   console.log('CurrentConnections', count);
+  emitDevices();
+
   socket.on('toRadio', (data) => {
     console.log('toRadio', data)
     socket.broadcast.emit('toRadio', { 'Rname': data });
-    // io.sockets.emit('toRadio', { 'Rname': data });
   });
 
-  socket.on('radioData', (data) => {
-    console.log('radioData', data);
-    socket.broadcast.emit('fromRadio', data);
-    // io.sockets.emit('fromRadio', data);
+  socket.on('radioData', (response) => {
+    const data = split(response.data, ':');
+    const id = data[0];
+    const type = data[1];
+    const val = data[2];
+
+    if (type === 'CHANNEL') {
+      const device = db.get('devices')
+        .find({ id })
+        .value();
+      if (!device) {
+        db.get('devices')
+          .push({ id, channel: val })
+          .write()
+      }
+    }
+    if (type === 'TYPE') {
+      const device = db.get('devices')
+        .find({ id })
+        .assign({ type: val })
+        .write();
+    }
+    if (type === 'VALUE') {
+      const device = db.get('devices')
+        .find({ id })
+        .assign({ value: val })
+        .write();
+
+    }
+
+    socket.broadcast.emit('fromRadio', response);
   });
 
   socket.on('disconnect', () => {
@@ -53,6 +96,9 @@ app.use(bodyParser.json());
 // use morgan to log requests to the console
 app.use(morgan('dev'));
 
+app.get('/devices', (req, res) => {
+  res.send('I am listening!');
+});
 app.get('/health', (req, res) => {
   res.send('I am listening!');
 });

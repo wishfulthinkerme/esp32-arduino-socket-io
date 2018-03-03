@@ -71,6 +71,7 @@ void initRadio()
   radio.startListening();
   const String initPackage = String((char *)rxAddr);
   transmitData("CHANNEL", initPackage);
+  transmitData("TYPE", "LIGHT");
 }
 
 void createChannel()

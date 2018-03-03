@@ -8,6 +8,7 @@ export default ({ values, onClick }) => (
       <tr>
         <th scope="col">Id</th>
         <th scope="col">Channel</th>
+        <th scope="col">Type</th>
         <th scope="col">Value</th>
         <th scope="col">Action</th>
       </tr>
@@ -17,7 +18,8 @@ export default ({ values, onClick }) => (
         <tr key={`values-${key}`}>
           <td>{data.id}</td>
           <td>{data.channel}</td>
-          <td>{data.val}</td>
+          <td>{data.type}</td>
+          <td>{data.value}</td>
           <td><button type="button" onClick={onClick(data.id, data.channel)}>Beat</button></td>
         </tr>
       ))}

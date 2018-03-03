@@ -24,42 +24,19 @@ class App extends Component {
     temp: 0.0,
     light: false,
     move: false,
+    devices: [],
   }
 
   componentDidMount() {
     this.socket = socketIo('ws://localhost:5002/', {});
-
-    this.socket.on('fromRadio', response => {
-      const x = split(response.data, ':');
-      const id = x[0];
-      const type = x[1];
-      const val = x[2];
-      if (type === 'CHANNEL') {
-        this.setState({
-          ...this.state,
-          values: {
-            ...this.state.values,
-            [id]: {
-              ...this.state.values[id],
-              channel: val,
-            }
-          }
-        });
-      }
-      if (id === 'R04' && type === 'VAL' && val === 'TRUE') {
-        this.send('toRadio', 'R01:LIG:01')();
-      }
-      if (id === 'R04' && type === 'VAL' && val === 'FALSE') {
-        this.send('toRadio', 'R01:LIG:00')();
-      }
+    this.socket.on('devices', response => {
       this.setState({
-        values: {
-          ...this.state.values,
-          [id]: {
-            ...this.state.values[id],
-            id, type, val
-          }
-        },
+        devices: response,
+      })
+    });
+    this.socket.on('fromRadio', response => {
+
+      this.setState({
         history: [...this.state.history, response.data]
       })
     });
@@ -76,19 +53,18 @@ class App extends Component {
   }
 
   sendBeat = (id, channel) => () => {
-    this.send('toRadio', `${id}:${channel}:BEAT:00000`)();
+    this.send('toRadio', `${id}:${channel}:BEAT:1234`)();
   }
 
   render() {
-    let { history, values } = this.state;
-    values = filter(values, h => h.channel);
+    let { history, values, devices } = this.state;
     return (
       <main className="app">
         <NavHeader />
         <section className="app-content">
           <article className="row">
-            <Card header="Values" className="col-sm-4">
-              <ValuesTable values={values} onClick={this.sendBeat} />
+            <Card header="Devices" className="col-sm-4">
+              <ValuesTable values={devices} onClick={this.sendBeat} />
             </Card>
             <Card header="History" className="col-sm-4">
               <HistoryTable history={history} />

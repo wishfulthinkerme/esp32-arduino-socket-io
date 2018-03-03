@@ -5,7 +5,7 @@
   "main": "app/server.js",
   "scripts": {
     "build": "rimraf build/ && babel ./ --out-dir build/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
-    "start": "nodemon server.js --ignore 'migrations/*.js' --exec babel-node --presets es2015",
+    "start": "nodemon server.js --ignore 'migrations/*.js' --ignore 'db.json' --exec babel-node --presets es2015",
     "daemon": "forever build/server.js --exec",
     "sequelize": "sequelize $*",
     "autodoc": "apidoc -f '.*\\.js$' -i app/ -o docs/"
@@ -24,6 +24,7 @@
     "fcm-push": "^1.1.3",
     "firebase-admin": "^5.5.0",
     "html-pdf": "^2.2.0",
+    "lowdb": "^1.0.0",
     "morgan": "^1.8.2",
     "mysql": "^2.14.1",
     "mysql2": "^1.4.2",
@@ -45,7 +46,8 @@
   },
   "nodemonConfig": {
     "ignore": [
-      "migrations/*"
+      "migrations/*",
+      "db.json"
     ]
   }
 }
