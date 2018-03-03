@@ -22,7 +22,6 @@ struct Setup
 // Radio
 byte rxAddr[channelSize] = "00000";       // Our base will set this up
 const byte txAddr[channelSize] = "00002"; // Always the same
-const String myRadioKey = "R05";
 
 // Pins
 const int packageSize = 32;

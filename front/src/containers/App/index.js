@@ -73,11 +73,6 @@ class App extends Component {
               <div className="app-counter">{this.state.currentCount}</div>
             </Card>
           </article>
-          <article className="row pt-sm">
-            <Card header="Buttons" className="col-sm-4">
-              <ButtonGroup onSend={this.send} />
-            </Card>
-          </article>
         </section>
       </main>
 

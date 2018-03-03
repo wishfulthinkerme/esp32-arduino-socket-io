@@ -51,7 +51,7 @@ io.on('connection', function (socket) {
     const id = data[0];
     const type = data[1];
     const val = data[2];
-
+    console.log(response.data);
     if (type === 'CHANNEL') {
       const device = db.get('devices')
         .find({ id })
