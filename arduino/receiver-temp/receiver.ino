@@ -128,6 +128,11 @@ void receiveRadio()
   {
     return;
   }
+  // CHECK TEMP
+  if(String(radioType) == "CHEC") {
+    sensors.requestTemperatures();
+    transmitData("VALUE", String(sensors.getTempCByIndex(0)));
+  }
 
   blinkLed();
 }

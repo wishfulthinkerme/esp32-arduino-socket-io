@@ -52,8 +52,8 @@ class App extends Component {
     console.log(key, data)
   }
 
-  sendBeat = (id, channel) => () => {
-    this.send('toRadio', `${id}:${channel}:BEAT:1234`)();
+  sendToDevice = (id, channel, type, val) => () => {
+    this.send('toRadio', `${id}:${channel}:${type}:${val}`)();
   }
 
   render() {
@@ -64,7 +64,7 @@ class App extends Component {
         <section className="app-content">
           <article className="row">
             <Card header="Devices" className="col-sm-4">
-              <ValuesTable values={devices} onClick={this.sendBeat} />
+              <ValuesTable values={devices} onClick={this.sendToDevice} />
             </Card>
             <Card header="History" className="col-sm-4">
               <HistoryTable history={history} />
