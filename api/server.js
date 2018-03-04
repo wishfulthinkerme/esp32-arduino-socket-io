@@ -10,12 +10,23 @@ import FileSync from 'lowdb/adapters/FileSync';
 
 import NRF24 from 'nrf';
 
+// RADIO
+
 const channelHex = (channel) => {
   const reversed = channel.split("").reverse().join("");
   const buf = Buffer.from(reversed);
-  return '0x' + (buf.toString('hex'));
+  return parseInt('0x' + (buf.toString('hex')), 16);
 }
 
+const spiDev = '/dev/spidev0.0';
+const cePin = 17;
+const irqPin = 21;
+const rxAddr = channelHex('00002');
+
+const radio = NRF24.connect(spiDev, cePin, irqPin);
+radio.dataRate('1Mbps').transmitPower('PA_MAX').channel(0x4c).crcBytes(2);
+
+// DB
 const adapter = new FileSync('db.json');
 const db = lowdb(adapter);
 db.defaults({ devices: [] })
@@ -39,7 +50,6 @@ const emitDevices = () => {
 
   const devices = db.get('devices')
     .value();
-  console.log(devices)
   io.sockets.emit('devices', devices);
 }
 
@@ -52,27 +62,17 @@ io.on('connection', function (socket) {
 
   // Data from frontend to nrf24l01
   socket.on('toRadio', (data) => {
-    const spiDev = '/dev/spidev0.0';
-    const cePin = 17;
-    const irqPin = 21;
-    const rxAddr = channelHex('00002');
-
-
     const splitData = split(data, ':');
-    const id = splitData[0];
     const channel = channelHex(splitData[1]);
-    const type = splitData[2];
-    const val = splitData[3];
 
-    const radio = NRF24.connect(spiDev, cePin, irqPin);
-    radio.dataRate('1Mbps').transmitPower('PA_MAX');
     radio.begin(() => {
       const rx = radio.openPipe('rx', rxAddr);
       const tx = radio.openPipe('tx', channel);
-      rx.on((data => {}));
-      tx.on((data => {}));
-      const bufData = lodash.reverse(Buffer.from(data));
-      tx.write(bufData)
+      rx.on('data', data => { });
+      tx.on('ready', () => {
+        const bufData = lodash.reverse(Buffer.from(data));
+        tx.write(bufData)
+      });
     });
     console.log('toRadio', data);
   });

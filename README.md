@@ -4,5 +4,6 @@
 - Arduino Nano
 - ReactJS
 - NodeJS / SocketIO
+- RaspberryPi
 
 # Soon I will upload pictures how to connect everything
