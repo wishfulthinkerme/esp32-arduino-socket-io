@@ -7,7 +7,7 @@ import socket from 'socket.io';
 import split from 'lodash/split';
 import lowdb from 'lowdb';
 import FileSync from 'lowdb/adapters/FileSync';
-
+import lodash from 'lodash';
 import NRF24 from 'nrf';
 
 // RADIO
