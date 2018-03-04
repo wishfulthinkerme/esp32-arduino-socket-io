@@ -22,10 +22,7 @@ const spiDev = '/dev/spidev0.0';
 const cePin = 17;
 const irqPin = 21;
 const rxAddr = channelHex('00002');
-
-const radio = NRF24.connect(spiDev, cePin);
-radio.dataRate('1Mbps').transmitPower('PA_MAX').channel(0x4c).crcBytes(2);
-
+var radio = NRF24.connect(spiDev, cePin);
 // DB
 const adapter = new FileSync('db.json');
 const db = lowdb(adapter);
@@ -64,17 +61,23 @@ io.on('connection', function (socket) {
   socket.on('toRadio', (data) => {
     const splitData = split(data, ':');
     const channel = channelHex(splitData[1]);
+	console.log('channel', channel);
+
+
+radio.channel(0x4c).transmitPower('PA_MAX').dataRate('1Mbps').crcBytes(2);
 
     radio.begin(() => {
-      const rx = radio.openPipe('rx', rxAddr);
+     
       const tx = radio.openPipe('tx', channel);
-      rx.on('data', data => { });
+radio.printDetails();
+      
       tx.on('ready', () => {
         const bufData = lodash.reverse(Buffer.from(data));
-        tx.write(bufData)
+        tx.write(bufData);
+	console.log('toRadioa', data);
       });
     });
-    console.log('toRadio', data);
+    
   });
 
 
