@@ -12,12 +12,13 @@
       "id": "753-756-652-751",
       "channel": "02542",
       "type": "TEMP",
-      "value": "27.44"
+      "value": "26.50"
     },
     {
       "id": "795-608-675-480",
       "channel": "03799",
-      "type": "LIGHT"
+      "type": "LIGHT",
+      "value": "OFF"
     }
   ]
 }
