@@ -18,11 +18,7 @@ const channelHex = (channel) => {
   return parseInt('0x' + (buf.toString('hex')), 16);
 }
 
-const spiDev = '/dev/spidev0.0';
-const cePin = 17;
-const irqPin = 21;
-const rxAddr = channelHex('00002');
-var radio = NRF24.connect(spiDev, cePin);
+
 // DB
 const adapter = new FileSync('db.json');
 const db = lowdb(adapter);
@@ -36,7 +32,7 @@ const app = express();
 const port = process.env.PORT || 5002;
 
 var http = require('http').Server(app);
-export const io = require('socket.io')(http);
+const io = require('socket.io')(http);
 let count = 0;
 
 const updateCount = (c) => {
@@ -50,6 +46,21 @@ const emitDevices = () => {
   io.sockets.emit('devices', devices);
 }
 
+const spiDev = '/dev/spidev0.0';
+const cePin = 17;
+const irqPin = 21;
+const rxAddr = channelHex('00002');
+var radio = NRF24.connect(spiDev, cePin);
+radio.channel(0x4c).transmitPower('PA_MAX').dataRate('1Mbps').crcBytes(2);
+
+radio.begin(()=>{
+
+
+const rx = radio.openPipe('rx', rxAddr);
+    rx.on('NEWDATA', (data) => {
+	console.log('data', data);
+	radio.printDetails();
+	});
 io.on('connection', function (socket) {
   count++;
   updateCount(count);
@@ -61,21 +72,18 @@ io.on('connection', function (socket) {
   socket.on('toRadio', (data) => {
     const splitData = split(data, ':');
     const channel = channelHex(splitData[1]);
-	console.log('channel', channel);
 
-
-radio.channel(0x4c).transmitPower('PA_MAX').dataRate('1Mbps').crcBytes(2);
-
-    radio.begin(() => {
      
       const tx = radio.openPipe('tx', channel);
-radio.printDetails();
-      
+	
+	//radio.printDetails();
+  
       tx.on('ready', () => {
         const bufData = lodash.reverse(Buffer.from(data));
         tx.write(bufData);
+radio.printDetails();
 	console.log('toRadioa', data);
-      });
+   
     });
     
   });
@@ -122,7 +130,7 @@ radio.printDetails();
     updateCount(count);
   });
 });
-
+});
 app.use(cors());
 app.disable('etag');
 
