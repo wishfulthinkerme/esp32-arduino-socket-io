@@ -22,9 +22,9 @@ export default ({ values, onClick }) => (
           <td>{data.value}</td>
           <td>
             <button type="button" onClick={onClick(data.id, data.channel, 'BEAT', '0000')}>Beat</button>
-            {data.type === 'TEMP' && <button type="button" onClick={onClick(data.id, data.channel, 'CHEC', '0000')}>Check temp</button>}
-            {data.type === 'LIGHT' && <button type="button" onClick={onClick(data.id, data.channel, 'SETV', 'OFF')}>Light off</button>}
-            {data.type === 'LIGHT' && <button type="button" onClick={onClick(data.id, data.channel, 'SETV', 'ON')}>Light on</button>}
+            {data.type === 'TEMP' && <button type="button" onClick={onClick(data.id, data.channel, 'CHEC', '0000 ')}>Check temp</button>}
+            {data.type === 'LIGHT' && <button type="button" onClick={onClick(data.id, data.channel, 'SETV', 'OFF  ')}>Light off</button>}
+            {data.type === 'LIGHT' && <button type="button" onClick={onClick(data.id, data.channel, 'SETV', 'ON   ')}>Light on</button>}
           </td>
         </tr>
       ))}

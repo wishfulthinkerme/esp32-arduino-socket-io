@@ -23,7 +23,7 @@ const cePin = 17;
 const irqPin = 21;
 const rxAddr = channelHex('00002');
 
-const radio = NRF24.connect(spiDev, cePin, irqPin);
+const radio = NRF24.connect(spiDev, cePin);
 radio.dataRate('1Mbps').transmitPower('PA_MAX').channel(0x4c).crcBytes(2);
 
 // DB
