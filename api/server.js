@@ -5,13 +5,13 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import socket from 'socket.io';
 import split from 'lodash/split';
-import lowdb from 'lowdb';
+import lowdb from 'lodb';
 import FileSync from 'lowdb/adapters/FileSync';
 import lodash from 'lodash';
 import NRF24 from 'nrf';
 
 // RADIO
-
+var openedPipes = {};
 const channelHex = (channel) => {
   const reversed = channel.split("").reverse().join("");
   const buf = Buffer.from(reversed);
@@ -53,83 +53,84 @@ const rxAddr = channelHex('00002');
 var radio = NRF24.connect(spiDev, cePin);
 radio.channel(0x4c).transmitPower('PA_MAX').dataRate('1Mbps').crcBytes(2);
 
-radio.begin(()=>{
+radio.begin(() => {
 
 
-const rx = radio.openPipe('rx', rxAddr);
-    rx.on('NEWDATA', (data) => {
-	console.log('data', data);
-	radio.printDetails();
-	});
-io.on('connection', function (socket) {
-  count++;
-  updateCount(count);
-  console.log('CurrentConnections', count);
-  emitDevices();
+  const rx = radio.openPipe('rx', rxAddr);
+  rx.on('NEWDATA', (data) => {
+    console.log('data', data);
+    radio.printDetails();
+  });
+  io.on('connection', function (socket) {
+    count++;
+    updateCount(count);
+    console.log('CurrentConnections', count);
+    emitDevices();
 
 
-  // Data from frontend to nrf24l01
-  socket.on('toRadio', (data) => {
-    const splitData = split(data, ':');
-    const channel = channelHex(splitData[1]);
+    // Data from frontend to nrf24l01
+    socket.on('toRadio', (data) => {
+      const splitData = split(data, ':');
+      const channel = channelHex(splitData[1]);
 
-     
-      const tx = radio.openPipe('tx', channel);
-	
-	//radio.printDetails();
-  
-      tx.on('ready', () => {
+      if (!openedPipes[channel]) {
+        openedPipes[channel] =  radio.openPipe('tx', channel);
+      }
+
+      //radio.printDetails();
+
+      openedPipes[channel].on('ready', () => {
         const bufData = lodash.reverse(Buffer.from(data));
         tx.write(bufData);
-radio.printDetails();
-	console.log('toRadioa', data);
-   
+        radio.printDetails();
+        console.log('toRadioa', data);
+
+      });
+
     });
-    
-  });
 
 
-  // Receive from radio
-  // To be changed for SPI
-  socket.on('radioData', (response) => {
-    const data = split(response.data, ':');
-    const id = data[0];
-    const type = data[1];
-    const val = data[2];
-    console.log(response.data);
-    if (type === 'CHANNEL') {
-      const device = db.get('devices')
-        .find({ id })
-        .value();
-      if (!device) {
-        db.get('devices')
-          .push({ id, channel: val })
-          .write()
+    // Receive from radio
+    // To be changed for SPI
+    socket.on('radioData', (response) => {
+      const data = split(response.data, ':');
+      const id = data[0];
+      const type = data[1];
+      const val = data[2];
+      console.log(response.data);
+      if (type === 'CHANNEL') {
+        const device = db.get('devices')
+          .find({ id })
+          .value();
+        if (!device) {
+          db.get('devices')
+            .push({ id, channel: val })
+            .write()
+        }
       }
-    }
-    if (type === 'TYPE') {
-      const device = db.get('devices')
-        .find({ id })
-        .assign({ type: val })
-        .write();
-    }
-    if (type === 'VALUE') {
-      const device = db.get('devices')
-        .find({ id })
-        .assign({ value: val })
-        .write();
+      if (type === 'TYPE') {
+        const device = db.get('devices')
+          .find({ id })
+          .assign({ type: val })
+          .write();
+      }
+      if (type === 'VALUE') {
+        const device = db.get('devices')
+          .find({ id })
+          .assign({ value: val })
+          .write();
 
-    }
+      }
 
-    socket.broadcast.emit('fromRadio', response);
+      socket.broadcast.emit('fromRadio', response);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('socket disconnected');
+      count--;
+      updateCount(count);
+    });
   });
-
-  socket.on('disconnect', () => {
-    console.log('socket disconnected');
-    count--;
-    updateCount(count);
-  });
-});
 });
 app.use(cors());
 app.disable('etag');
