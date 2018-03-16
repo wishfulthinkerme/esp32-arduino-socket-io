@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import socket from 'socket.io';
 import split from 'lodash/split';
-import lowdb from 'lodb';
+import lowdb from 'lowdb';
 import FileSync from 'lowdb/adapters/FileSync';
 import lodash from 'lodash';
 import NRF24 from 'nrf';
@@ -36,6 +36,7 @@ const io = require('socket.io')(http);
 let count = 0;
 
 const updateCount = (c) => {
+  count++;
   io.sockets.emit('currentCount', c)
 }
 
@@ -53,6 +54,25 @@ const rxAddr = channelHex('00002');
 var radio = NRF24.connect(spiDev, cePin);
 radio.channel(0x4c).transmitPower('PA_MAX').dataRate('1Mbps').crcBytes(2);
 
+const socketToRadio = (data) => {
+  const splitData = split(data, ':');
+  const channel = channelHex(splitData[1]);
+  const bufData = lodash.reverse(Buffer.from(data));
+
+  if (!openedPipes[channel]) {
+    openedPipes[channel] = radio.openPipe('tx', channel);
+    openedPipes[channel].on('ready', () => {
+      openedPipes[channel].write(bufData);
+      openedPipes[channel].close();
+      delete openedPipes[channel];
+    });
+  } else {
+    openedPipes[channel].write(bufData);
+    openedPipes[channel].close();
+    delete openedPipes[channel];
+  }
+}
+
 radio.begin(() => {
 
 
@@ -61,34 +81,11 @@ radio.begin(() => {
     console.log('data', data);
     radio.printDetails();
   });
-  io.on('connection', function (socket) {
-    count++;
+  io.on('connection', (socket) => {
     updateCount(count);
-    console.log('CurrentConnections', count);
     emitDevices();
-
-
     // Data from frontend to nrf24l01
-    socket.on('toRadio', (data) => {
-      const splitData = split(data, ':');
-      const channel = channelHex(splitData[1]);
-
-      if (!openedPipes[channel]) {
-        openedPipes[channel] =  radio.openPipe('tx', channel);
-      }
-
-      //radio.printDetails();
-
-      openedPipes[channel].on('ready', () => {
-        const bufData = lodash.reverse(Buffer.from(data));
-        tx.write(bufData);
-        radio.printDetails();
-        console.log('toRadioa', data);
-
-      });
-
-    });
-
+    socket.on('toRadio', socketToRadio);
 
     // Receive from radio
     // To be changed for SPI
