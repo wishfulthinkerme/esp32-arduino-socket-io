@@ -54,34 +54,43 @@ radio.channel(0x4c).transmitPower('PA_MAX').dataRate('1Mbps').crcBytes(2);
 
 
 
-
-io.on('connection', initApp);
 const socketToRadio = (tx) => (data) => {
   const splitData = split(data, ':');
   const bufData = lodash.reverse(Buffer.from(data));
   tx.write(bufData);
 }
 
-const initApp = (socket) => {
-  emitDevices();
+
+const initSocket = new Promise((resolve, reject) => {
+  io.on('connection', (socket) => {
+    emitDevices();
+    resolve(socket);
+  });
+})
+
+const initRadio = new Promise((resolve, reject) => {
   radio.begin(() => {
     console.log('radio - ready');
     const rx = radio.openPipe('rx', rxAddr);
     const tx = radio.openPipe('tx', txAddr);
-    let isTxReady = false;
-
-    rx.on('data', (data) => {
-      console.log('radio - rx - data', data);
-    });
     tx.on('ready', () => {
       console.log('radio - tx - ready')
-      isTxReady = true;
+      resolve({ rx, tx })
     });
-
-
-    socket.on('toRadio', socketToRadio(tx));     // Data from frontend to nrf24l01
   });
-};
+});
+
+const App = Promise.all([initSocket, initRadio]).then((values) => {
+  const socket = values[0];
+  const radio = values[1];
+  console.log('App - ready');
+  console.log(values);
+
+  rx.on('data', (data) => {
+    console.log('radio - rx - data', data);
+  });
+  socket.on('toRadio', socketToRadio(tx));     // Data from frontend to nrf24l01
+});
 
 
 
