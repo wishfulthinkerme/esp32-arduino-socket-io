@@ -84,7 +84,6 @@ initRadio.then(radio => {
 
 io.on('connection', (socket) => {
   emitDevices();
-  resolve(socket);
   const radio = globalRadio;
   if (radio.status !== 'READY') {
     socket.disconnect();
