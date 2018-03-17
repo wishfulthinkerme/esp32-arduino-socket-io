@@ -58,6 +58,7 @@ const socketToRadio = (tx) => (data) => {
   const splitData = split(data, ':');
   const bufData = lodash.reverse(Buffer.from(data));
   tx.write(bufData);
+  console.log('radio - tx - ',data);
 }
 
 
@@ -70,12 +71,15 @@ const initSocket = new Promise((resolve, reject) => {
 
 const initRadio = new Promise((resolve, reject) => {
   radio.begin(() => {
+	  
+	  radio.printDetails();
     console.log('radio - ready');
     const rx = radio.openPipe('rx', rxAddr);
     const tx = radio.openPipe('tx', txAddr);
     tx.on('ready', () => {
-      console.log('radio - tx - ready')
-      resolve({ rx, tx })
+      console.log('radio - tx - ready');
+  
+      resolve({ rx, tx });
     });
   });
 });
@@ -84,12 +88,15 @@ const App = Promise.all([initSocket, initRadio]).then((values) => {
   const socket = values[0];
   const radio = values[1];
   console.log('App - ready');
-  console.log(values);
 
-  rx.on('data', (data) => {
-    console.log('radio - rx - data', data);
+
+  radio.rx.on('data', (data) => {
+	  const newData = data.reverse().toString('utf8');
+	 // const newData = data.toString('hex').match(/.{2}/g).reverse().join("");
+    console.log('radio - rx - data',newData );
+    socket.emit('fromRadio', {data: newData});
   });
-  socket.on('toRadio', socketToRadio(tx));     // Data from frontend to nrf24l01
+  socket.on('toRadio', socketToRadio(radio.tx));     // Data from frontend to nrf24l01
 });
 
 
