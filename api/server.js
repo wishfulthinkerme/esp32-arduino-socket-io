@@ -33,15 +33,9 @@ const port = process.env.PORT || 5002;
 
 var http = require('http').Server(app);
 const io = require('socket.io')(http);
-let count = 0;
-
-const updateCount = (c) => {
-  count++;
-  io.sockets.emit('currentCount', c)
-}
 
 const emitDevices = () => {
-
+  console.log('devices');
   const devices = db.get('devices')
     .value();
   io.sockets.emit('devices', devices);
@@ -55,50 +49,39 @@ const irqPin = 21;
 const rxAddr = channelHex('00002');
 const txAddr = channelHex('00003');
 
-const radio = NRF24.connect(spiDev, cePin);
+const radio = NRF24.connect(spiDev, cePin, irqPin);
 radio.channel(0x4c).transmitPower('PA_MAX').dataRate('1Mbps').crcBytes(2);
 
 
 
-// radio needs to begin
-radio.begin(initApp);
 
+io.on('connection', initApp);
 const socketToRadio = (tx) => (data) => {
   const splitData = split(data, ':');
   const bufData = lodash.reverse(Buffer.from(data));
   tx.write(bufData);
 }
 
-const initApp = () => {
+const initApp = (socket) => {
+  emitDevices();
+  radio.begin(() => {
+    console.log('radio - ready');
+    const rx = radio.openPipe('rx', rxAddr);
+    const tx = radio.openPipe('tx', txAddr);
+    let isTxReady = false;
 
-  const rx = radio.openPipe('rx', rxAddr);
-  const tx = radio.openPipe('tx', txAddr);
-  let isTxReady = false;
-  rx.on('data', (data) => {
-    console.log('data', data);
-  });
-  tx.on('ready', () => {
-    isTxReady = true;
-  });
-
-  io.on('connection', (socket) => {
-    updateCount(count);
-    emitDevices();
+    rx.on('data', (data) => {
+      console.log('radio - rx - data', data);
+    });
+    tx.on('ready', () => {
+      console.log('radio - tx - ready')
+      isTxReady = true;
+    });
 
 
     socket.on('toRadio', socketToRadio(tx));     // Data from frontend to nrf24l01
-    socket.on('disconnect', () => {
-      console.log('socket disconnected');
-      count--;
-      updateCount(count);
-    });
   });
 };
-
-
-
-
-
 
 
 
